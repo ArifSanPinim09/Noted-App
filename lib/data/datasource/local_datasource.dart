@@ -2,57 +2,53 @@ import 'package:noted_app/model/data_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-class LocalDataSource {
-  final String dbName = "notes_local01.db";
-  final String tableName = "notes";
+class LocalDatasource {
+  final String dbName = 'notes_local01.db';
+  final String tableName = 'notes';
 
-  Future<Database> _openDataBase() async {
-    final dataBasePath = await getDatabasesPath();
-    final path = join(dataBasePath, dbName);
+  Future<Database> _openDatabase() async {
+    final databasePath = await getDatabasesPath();
+    final path = join(databasePath, dbName);
 
     return await openDatabase(
       path,
       version: 1,
       onCreate: (db, version) {
         return db.execute(
-          '''CREATE TABLE $tableName(id INTEGER PRIMARY KEY AUTOINCREMENT,
-          title TEXT,
-          body TEXT,
-          color TEXT,
-          creatAdd TEXT)''',
+          '''CREATE TABLE $tableName(
+            id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            title TEXT, 
+            content TEXT, 
+            createdAt TEXT)''',
         );
       },
     );
   }
 
-  Future<int> insertNote(DataModel note) async {
-    final db = await _openDataBase();
+  Future<int> insertNote(Note note) async {
+    final db = await _openDatabase();
     return await db.insert(tableName, note.toMap());
   }
 
-  //getall
-  Future<List<DataModel>> getAllNotes() async {
-    final db = await _openDataBase();
-    final maps = await db.query(tableName, orderBy: 'creatAdd DESC');
-    return List.generate(maps.length, (index) {
-      return DataModel.fromMap(maps[index]);
+  //get all notes
+  Future<List<Note>> getNotes() async {
+    final db = await _openDatabase();
+    final maps = await db.query(tableName, orderBy: 'createdAt DESC');
+    return List.generate(maps.length, (i) {
+      return Note.fromMap(maps[i]);
     });
   }
 
   //get note by id
-  Future<DataModel> getNoteById(int id) async {
-    final db = await _openDataBase();
-    final maps = await db.query(
-      tableName,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-    return DataModel.fromMap(maps.first);
+  Future<Note> getNoteById(int id) async {
+    final db = await _openDatabase();
+    final maps = await db.query(tableName, where: 'id = ?', whereArgs: [id]);
+    return Note.fromMap(maps.first);
   }
 
-  //update
-  Future<int> updateNote(DataModel note) async {
-    final db = await _openDataBase();
+  //update note
+  Future<int> updateNoteById(Note note) async {
+    final db = await _openDatabase();
     return await db.update(
       tableName,
       note.toMap(),
@@ -61,9 +57,9 @@ class LocalDataSource {
     );
   }
 
-  //delete
-  Future<int> deleteNote(int id) async {
-    final db = await _openDataBase();
+  //delete note
+  Future<int> deleteNoteById(int id) async {
+    final db = await _openDatabase();
     return await db.delete(
       tableName,
       where: 'id = ?',

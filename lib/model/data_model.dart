@@ -1,44 +1,38 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
-import 'dart:ui';
 
-class DataModel {
-  int? id;
-  String title;
-  String body;
-  DateTime creatAdd;
-  Color color;
+class Note {
+  final int? id;
+  final String title;
+  final String content;
+  final DateTime createdAt;
 
-  DataModel({
+  Note({
     this.id,
     required this.title,
-    required this.body,
-    required this.creatAdd,
-    required this.color,
+    required this.content,
+    required this.createdAt,
   });
 
   Map<String, dynamic> toMap() {
-    return <String, dynamic>{
+    return {
       'id': id,
       'title': title,
-      'body': body,
-      'creatAdd': creatAdd.millisecondsSinceEpoch,
-      'color': color.value,
+      'content': content,
+      'createdAt': createdAt.millisecondsSinceEpoch,
     };
   }
 
-  factory DataModel.fromMap(Map<String, dynamic> map) {
-    return DataModel(
-      id: map['id'] != null ? map['id'] as int : null,
-      title: map['title'] as String,
-      body: map['body'] as String,
-      creatAdd: DateTime.fromMillisecondsSinceEpoch(map['creatAdd'] as int),
-      color: Color(map['color'] as int),
+  factory Note.fromMap(Map<String, dynamic> map) {
+    return Note(
+      id: map['id']?.toInt(),
+      title: map['title'] ?? '',
+      content: map['content'] ?? '',
+      createdAt:
+          DateTime.fromMillisecondsSinceEpoch(int.parse(map['createdAt'])),
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory DataModel.fromJson(String source) =>
-      DataModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory Note.fromJson(String source) => Note.fromMap(json.decode(source));
 }
